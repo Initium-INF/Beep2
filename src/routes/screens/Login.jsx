@@ -1,15 +1,49 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-community/async-storage';
+
+// Função de autenticação fornecida
+export function signIn(email, password) {
+  return new Promise((resolve, reject) => {
+    // Lógica de autenticação simulada
+    setTimeout(() => {
+      if (email === 'thiagomarinho@rockeseat.com.br' && password === 'senha') {
+        resolve({
+          token: 'jk12h3j21h3jk212h3jk12h3jkh12j3kh12k123hh21g3f12f3',
+          name: 'Thiago',
+          email: 'thiagomarinho@rockeseat.com.br',
+        });
+      } else {
+        reject(new Error('Credenciais inválidas'));
+      }
+    }, 2000);
+  });
+}
 
 const TelaLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigation = useNavigation();
 
-  const handleLogin = () => {
-    // Lógica de autenticação aqui
-    // Aqui você faria a verificação do e-mail/senha e autenticaria o usuário
+  const handleLogin = async () => {
+    try {
+      // Lógica de autenticação fornecida
+      const user = await signIn(email, password);
+
+      // Verifique se a resposta contém um token
+      if (user.token) {
+        await AsyncStorage.setItem('isLoggedIn', 'true');
+        // Pode armazenar outras informações do usuário se necessário
+        await AsyncStorage.setItem('userToken', user.token);
+        navigation.navigate('Home'); // Navegue para a tela Home após o login bem-sucedido
+      } else {
+        alert('Login falhou. Verifique suas credenciais.');
+      }
+    } catch (error) {
+      console.error('Erro durante a autenticação:', error);
+      alert('Ocorreu um erro durante a autenticação. Tente novamente.');
+    }
   };
 
   const handleSignUpPress = () => {
@@ -56,7 +90,6 @@ const TelaLogin = () => {
     </View>
   );
 };
-
 const styles = StyleSheet.create({
 container: {
     flex: 1,

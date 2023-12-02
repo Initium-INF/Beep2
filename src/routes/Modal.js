@@ -1,56 +1,100 @@
 import { StatusBar } from "expo-status-bar";
-import React from "react";
-import { StyleSheet, Button, View, Modal, Text } from "react-native";
+import React, { useState, useEffect } from "react";
+import { StyleSheet, View, TouchableOpacity, Text } from "react-native";
+import { RNCamera } from "react-native-camera";
 
-import Scanner from "./Components/Scanner";
+const Camera = () => {
+  const [scanning, setScanning] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [type, setType] = useState("");
+  const [data, setData] = useState("");
 
-export default function App() {
-  const [modalVisible, setModalVisible] = React.useState(false);
+  const onBarcodeDetected = (barcodes) => {
+    if (barcodes.length > 0) {
+      setType(barcodes[0].type);
+      setData(barcodes[0].data);
+      setModalVisible(true);
+      stopScanning();
+    }
+  };
 
-  const [type, setType] = React.useState("");
-  const [data, setData] = React.useState("");
+  const startScanning = () => {
+    setScanning(true);
+  };
 
-  const onCodeScanned = (type, data) => {
-    setType(type);
-    setData(data);
+  const stopScanning = () => {
+    setScanning(false);
+  };
+
+  const closeModal = () => {
     setModalVisible(false);
   };
 
   return (
-    <View style={styles.container}>
+    <View style={{ flex: 1 }}>
+      {scanning ? (
+        <RNCamera
+          style={{ flex: 1 }}
+          type={RNCamera.Constants.Type.back}
+          onBarCodeRead={onBarcodeDetected}
+        />
+      ) : (
+        <View style={{}} />
+      )}
+
+      <StatusBar style="auto" />
+
       <Modal
         visible={modalVisible}
         transparent={true}
         animationType="fade"
-        onRequestClose={() => setModalVisible(false)}
+        onRequestClose={closeModal}
       >
         <View style={styles.modal}>
-          <Scanner onCodeScanned={onCodeScanned} />
-          <Button title="Cancelar" onPress={() => setModalVisible(false)} />
+          <Text>Tipo: {type}</Text>
+          <Text>Data: {data}</Text>
+          <TouchableOpacity style={styles.cancelButton} onPress={closeModal}>
+            <Text style={styles.cancelButtonText}>Cancelar</Text>
+          </TouchableOpacity>
         </View>
       </Modal>
 
-      <StatusBar style="auto" />
-
-      <Text>Tipo: {type}</Text>
-      <Text>Data: {data}</Text>
-
-      <Button title="Escanear" onPress={() => setModalVisible(true)} />
+      <TouchableOpacity style={styles.scanButton} onPress={startScanning}>
+        <Text style={styles.scanButtonText}>Escanear</Text>
+      </TouchableOpacity>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
   modal: {
     flex: 1,
     alignItems: "center",
     justifyContent: "space-around",
     backgroundColor: "lightgrey",
   },
+  scanButton: {
+    backgroundColor: "#4CAF50",
+    padding: 15,
+    borderRadius: 10,
+    marginTop: 20,
+  },
+  scanButtonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  cancelButton: {
+    backgroundColor: "#FF5733",
+    padding: 15,
+    borderRadius: 10,
+    marginTop: 20,
+  },
+  cancelButtonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
 });
+
+export default Camera;

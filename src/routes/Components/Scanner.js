@@ -1,22 +1,22 @@
-import React, { useState, useEffect } from "react";
-import { Text, View, StyleSheet, Button } from "react-native";
-import { BarCodeScanner } from "expo-barcode-scanner";
+// Scanner.js
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Button } from 'react-native';
+import { BarCodeScanner } from 'expo-barcode-scanner';
 
-export default function Scanner(props) {
+const Scanner = (props) => {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
 
   useEffect(() => {
     (async () => {
       const { status } = await BarCodeScanner.requestPermissionsAsync();
-      setHasPermission(status === "granted");
+      setHasPermission(status === 'granted');
     })();
   }, []);
 
   const handleBarCodeScanned = ({ type, data }) => {
     setScanned(true);
     props.onCodeScanned(type, data);
-    //aleart(`Bar code with type ${type} and data ${data} has been scanned!`);
   };
 
   if (hasPermission === null) {
@@ -27,25 +27,37 @@ export default function Scanner(props) {
   }
 
   return (
-    <View
-      style={{
-        width: "100%",
-        height: "90%",
-        flexDirection: "column",
-        justifyContent: "flex-end",
-      }}
-    >
+    <View style={styles.container}>
       <BarCodeScanner
         onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-        style={StyleSheet.absoluteFillObject}
+        style={styles.scanner}
       />
 
       {scanned && (
         <Button
-          title={"Repetir Escaneamento"}
+          title="Repetir Escaneamento"
           onPress={() => setScanned(false)}
+          style={styles.button}
         />
       )}
     </View>
   );
-}
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  scanner: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  button: {
+    margin: 20,
+  },
+});
+
+export default Scanner;
