@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 // Função de autenticação fornecida
 export function signIn(email, password) {
   return new Promise((resolve, reject) => {
-    // Lógica de autenticação simulada
+    // Lógica de autenticação simular
     setTimeout(() => {
       if (email === 'thiagomarinho@rockeseat.com.br' && password === 'senha') {
         resolve({
